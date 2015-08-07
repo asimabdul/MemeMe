@@ -15,8 +15,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var topLabel: UILabel!
     @IBOutlet weak var bottomLabel: UILabel!
+    @IBOutlet weak var topTextField: UITextField!
+    @IBOutlet weak var bottomTextField: UITextField!
+    @IBOutlet weak var bottomTextFieldConstraint: NSLayoutConstraint!
     
     var imagePicker: UIImagePickerController!
+    let topTextFieldDelegate = MemeTextFieldDelegate()
+    let bottomTextFieldDelegate = MemeTextFieldDelegate()
     
     override func viewWillAppear(animated: Bool) {
         stylizeButtons()
@@ -24,12 +29,71 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+        
         topLabel.hidden = true
         bottomLabel.hidden = true
-
-        // Do any additional setup after loading the view, typically from a nib.
+        
+//        enableCameraButton(isCameraAvailable())
+        
+        topTextField.hidden = true
+        bottomTextField.hidden = true
+        topTextFieldDelegate.memeLabel = topLabel
+        topTextField.delegate = self.topTextFieldDelegate
+        bottomTextFieldDelegate.memeLabel = bottomLabel
+        bottomTextField.delegate = self.bottomTextFieldDelegate
+        
+        let topLabelGesture = UITapGestureRecognizer(target: self, action: Selector("topLabelTapped:"))
+        let bottomLabelGesture = UITapGestureRecognizer(target: self, action: Selector("bottomLabelTapped:"))
+        topLabel.addGestureRecognizer(topLabelGesture)
+        bottomLabel.addGestureRecognizer(bottomLabelGesture)
+        
     }
-
+    
+    func keyboardWillShow(notification: NSNotification) {
+        if self.bottomTextField.isFirstResponder() {
+            self.view.frame.origin.y -= 150
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) {
+        if self.bottomTextField.isFirstResponder() {
+            self.view.frame.origin.y += 150
+        }
+    }
+    
+    func enableCameraButton(allow: Bool) {
+        if allow {
+            self.cameraButton.enabled = true
+        } else {
+            self.cameraButton.image = nil
+            self.cameraButton.enabled = false
+            self.cameraButton.tintColor = UIColor.lightGrayColor()
+        }
+    }
+    
+    func isCameraAvailable() -> Bool {
+        return UIImagePickerController.availableCaptureModesForCameraDevice(.Rear) != nil
+    }
+    
+    func topLabelTapped(sender: UITapGestureRecognizer) {
+        handleLabelTap(sender)
+    }
+    
+    func bottomLabelTapped(sender: UITapGestureRecognizer) {
+        handleLabelTap(sender)
+    }
+    
+    func handleLabelTap(sender: UITapGestureRecognizer) {
+        let currentLabel:UILabel = sender.view as! UILabel
+        currentLabel.hidden = true
+        let associatedTextField = self.view.viewWithTag(currentLabel.tag) as? UITextField
+        associatedTextField?.becomeFirstResponder()
+        associatedTextField?.hidden = false
+    }
+    
     
     @IBAction func takePhoto(sender: UIBarButtonItem) {
         imagePicker = UIImagePickerController()
@@ -43,6 +107,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     func noCamera() {
+        cameraButton.enabled = false
         let alertController = UIAlertController(title: "No camera available", message: "The camera could not be accessed. Please pick a photo from the album", preferredStyle: .Alert)
         let okAction = UIAlertAction(title: "Ok", style: .Default, handler: nil)
         alertController.addAction(okAction)
@@ -69,6 +134,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         }
     }
     
+    
     func stylizeButtons() {
         cameraButton.image = UIImage(named: "camera_icon")?.imageWithRenderingMode(.AlwaysOriginal)
         albumButton.image = UIImage(named: "album_icon")?.imageWithRenderingMode(.AlwaysOriginal)
@@ -77,3 +143,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
 
 }
 
+
+//TODO: Dry up memelabels hiding
+//TODO: Disable camera button in simulator
