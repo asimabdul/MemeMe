@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import QuartzCore
 
 class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
@@ -96,6 +97,15 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         associatedTextField?.hidden = false
     }
     
+    func saveImageWithText() -> UIImage {
+        let newView = UIView()
+        UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, view.opaque, 0)
+        view.drawViewHierarchyInRect(view.bounds, afterScreenUpdates: false)
+        let newImage  = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        UIImageWriteToSavedPhotosAlbum(newImage, nil, nil, nil)
+        return newImage
+    }
     
     @IBAction func chooseFromAlbum(sender: UIBarButtonItem) {
         imagePicker.sourceType = .PhotoLibrary
@@ -112,8 +122,11 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     @IBAction func shareImage(sender: UIBarButtonItem) {
-        activityView = UIActivityViewController(activityItems: ["FOOBAR"], applicationActivities: nil)
-        self.presentViewController(activityView, animated: true, completion: nil)
+        let savedImage:UIImage? = saveImageWithText()
+        if (savedImage != nil) {
+            activityView = UIActivityViewController(activityItems: [savedImage!], applicationActivities: nil)
+            self.presentViewController(activityView, animated: true, completion: nil)
+        }
     }
     
     func noCamera() {
