@@ -12,6 +12,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
 
     @IBOutlet weak var cameraButton: UIBarButtonItem!
     @IBOutlet weak var albumButton: UIBarButtonItem!
+    @IBOutlet weak var shareButton: UIBarButtonItem!
+    
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var topLabel: UILabel!
     @IBOutlet weak var bottomLabel: UILabel!
@@ -20,6 +22,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     @IBOutlet weak var bottomTextFieldConstraint: NSLayoutConstraint!
     
     var imagePicker: UIImagePickerController!
+    var activityView: UIActivityViewController!
+    
     let topTextFieldDelegate = MemeTextFieldDelegate()
     let bottomTextFieldDelegate = MemeTextFieldDelegate()
     
@@ -33,13 +37,11 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
         
-        topLabel.hidden = true
-        bottomLabel.hidden = true
+        imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
         
 //        enableCameraButton(isCameraAvailable())
         
-        topTextField.hidden = true
-        bottomTextField.hidden = true
         topTextFieldDelegate.memeLabel = topLabel
         topTextField.delegate = self.topTextFieldDelegate
         bottomTextFieldDelegate.memeLabel = bottomLabel
@@ -54,13 +56,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     
     func keyboardWillShow(notification: NSNotification) {
         if self.bottomTextField.isFirstResponder() {
-            self.view.frame.origin.y -= 150
+            self.view.frame.origin.y -= 200
         }
     }
     
     func keyboardWillHide(notification: NSNotification) {
         if self.bottomTextField.isFirstResponder() {
-            self.view.frame.origin.y += 150
+            self.view.frame.origin.y += 200
         }
     }
     
@@ -95,15 +97,23 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     
+    @IBAction func chooseFromAlbum(sender: UIBarButtonItem) {
+        imagePicker.sourceType = .PhotoLibrary
+        self.presentViewController(imagePicker, animated: true, completion: nil)
+    }
+    
     @IBAction func takePhoto(sender: UIBarButtonItem) {
-        imagePicker = UIImagePickerController()
         if UIImagePickerController.availableCaptureModesForCameraDevice(.Rear) == nil {
             noCamera()
         } else {
-            imagePicker.delegate = self
             imagePicker.sourceType = .Camera
             self.presentViewController(imagePicker, animated: true, completion: nil)
         }
+    }
+    
+    @IBAction func shareImage(sender: UIBarButtonItem) {
+        activityView = UIActivityViewController(activityItems: ["FOOBAR"], applicationActivities: nil)
+        self.presentViewController(activityView, animated: true, completion: nil)
     }
     
     func noCamera() {
@@ -115,21 +125,15 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
-        
         stylizeMemeLabels()
-        
         imagePicker.dismissViewControllerAnimated(true, completion: nil)
-        imageView.contentMode = .ScaleAspectFit
+        imageView.contentMode = .ScaleAspectFill
         imageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
     }
     
     func stylizeMemeLabels() {
-        topLabel.text = "Enter top text, so that somethingfits properly in this ios project"
-        bottomLabel.text = "Enter bottom text, so that somethingfits properly in this ios"
         var memeLabels = [topLabel, bottomLabel]
         for label in memeLabels {
-            label.numberOfLines = 0
-            label.sizeToFit()
             label.hidden = false
         }
     }
@@ -138,6 +142,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     func stylizeButtons() {
         cameraButton.image = UIImage(named: "camera_icon")?.imageWithRenderingMode(.AlwaysOriginal)
         albumButton.image = UIImage(named: "album_icon")?.imageWithRenderingMode(.AlwaysOriginal)
+        shareButton.image = UIImage(named: "social_share")?.imageWithRenderingMode(.AlwaysOriginal)
     }
 
 
