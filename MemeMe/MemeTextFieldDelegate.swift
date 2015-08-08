@@ -16,7 +16,9 @@ class MemeTextFieldDelegate: NSObject, UITextFieldDelegate {
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         if !textField.text.isEmpty {
-            memeLabel.text = textField.text
+            memeLabel.text = textField.text.uppercaseString
+            memeLabel.minimumScaleFactor = 0.6
+            memeLabel.adjustsFontSizeToFitWidth = true
         }
         textField.hidden = true
         memeLabel.hidden = false
