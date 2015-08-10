@@ -19,7 +19,6 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
     @IBOutlet weak var bottomLabel: UILabel!
     @IBOutlet weak var topTextField: UITextField!
     @IBOutlet weak var bottomTextField: UITextField!
-    @IBOutlet weak var bottomTextFieldConstraint: NSLayoutConstraint!
     
     var imagePicker: UIImagePickerController!
     var activityView: UIActivityViewController!
@@ -45,8 +44,8 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
         bottomTextFieldDelegate.memeLabel = bottomLabel
         bottomTextField.delegate = self.bottomTextFieldDelegate
         
-        let topLabelGesture = UITapGestureRecognizer(target: self, action: Selector("topLabelTapped:"))
-        let bottomLabelGesture = UITapGestureRecognizer(target: self, action: Selector("bottomLabelTapped:"))
+        let topLabelGesture = UITapGestureRecognizer(target: self, action: Selector("handleLabelTap:"))
+        let bottomLabelGesture = UITapGestureRecognizer(target: self, action: Selector("handleLabelTap:"))
         topLabel.addGestureRecognizer(topLabelGesture)
         bottomLabel.addGestureRecognizer(bottomLabelGesture)
         
@@ -68,14 +67,6 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
         return UIImagePickerController.availableCaptureModesForCameraDevice(.Rear) != nil
     }
     
-    func topLabelTapped(sender: UITapGestureRecognizer) {
-        handleLabelTap(sender)
-    }
-    
-    func bottomLabelTapped(sender: UITapGestureRecognizer) {
-        handleLabelTap(sender)
-    }
-    
     func handleLabelTap(sender: UITapGestureRecognizer) {
         let currentLabel:UILabel = sender.view as! UILabel
         currentLabel.hidden = true
@@ -85,7 +76,7 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
     }
     
 
-    func saveImageWithText() -> UIImage {
+    func captureImageAndText() -> UIImage {
         let newView = UIView()
         UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, view.opaque, 0)
         view.drawViewHierarchyInRect(view.bounds, afterScreenUpdates: false)
@@ -100,31 +91,25 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
     }
     
     @IBAction func takePhoto(sender: UIBarButtonItem) {
-        if UIImagePickerController.availableCaptureModesForCameraDevice(.Rear) == nil {
-            noCamera()
-        } else {
-            imagePicker.sourceType = .Camera
-            self.presentViewController(imagePicker, animated: true, completion: nil)
-        }
+        imagePicker.sourceType = .Camera
+        self.presentViewController(imagePicker, animated: true, completion: nil)
     }
     
     @IBAction func shareImage(sender: UIBarButtonItem) {
 
         if (imageView.image == nil) {
+            //Blank image with meme text cannot be shared
+            
             displayAlert("No image chosen", message: "Please take a photo or choose an image from your library using the buttons below. A blank image cannot be shared as a meme.")
         } else {
-            let savedImage:UIImage? = saveImageWithText()
-            if (savedImage != nil) {
-                activityView = UIActivityViewController(activityItems: [savedImage!], applicationActivities: nil)
+            let capturedImage:UIImage? = captureImageAndText()
+            if (capturedImage != nil) {
+                activityView = UIActivityViewController(activityItems: [capturedImage!], applicationActivities: nil)
                 self.presentViewController(activityView, animated: true, completion: nil)
             }
         }
     }
     
-    func noCamera() {
-        cameraButton.enabled = false
-        displayAlert("No camera available", message: "The camera could not be accessed. Please pick a photo from the album")
-    }
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
         resetMemeFields()
@@ -161,7 +146,3 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
     }
 
 }
-
-
-//TODO: Dry up memelabels hiding
-//TODO: Enlarge icons; 1x, 2x ,3x

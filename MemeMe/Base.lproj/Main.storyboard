@@ -51,8 +51,8 @@
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <label opaque="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="TOP TEXT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aWD-Yq-ukb">
-                                <rect key="frame" x="16" y="94" width="288" height="23"/>
+                            <label opaque="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TOP TEXT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aWD-Yq-ukb">
+                                <rect key="frame" x="16" y="94" width="288" height="37"/>
                                 <fontDescription key="fontDescription" name="Impact" family="Impact" pointSize="30"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -62,8 +62,8 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <label opaque="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="BOTTOM TEXT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0oQ-5B-4y1">
-                                <rect key="frame" x="16" y="470" width="288" height="24"/>
+                            <label opaque="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BOTTOM TEXT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0oQ-5B-4y1">
+                                <rect key="frame" x="16" y="457" width="288" height="37"/>
                                 <fontDescription key="fontDescription" name="Impact" family="Impact" pointSize="30"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -103,7 +103,6 @@
                         <outlet property="albumButton" destination="l6U-RZ-03l" id="Bxx-Jb-3GN"/>
                         <outlet property="bottomLabel" destination="0oQ-5B-4y1" id="VPZ-2h-yzI"/>
                         <outlet property="bottomTextField" destination="84c-hM-EgN" id="gHp-4f-HQm"/>
-                        <outlet property="bottomTextFieldConstraint" destination="2LY-ex-HA8" id="b4i-r9-nNk"/>
                         <outlet property="cameraButton" destination="54k-kO-TIC" id="Xq4-GE-5YU"/>
                         <outlet property="imageView" destination="Fcc-IA-UuK" id="kII-gi-5J3"/>
                         <outlet property="shareButton" destination="8Dz-be-0bf" id="AF6-Ua-MTY"/>
