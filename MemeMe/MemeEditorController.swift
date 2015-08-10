@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+class MemeEditorController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
     @IBOutlet weak var cameraButton: UIBarButtonItem!
     @IBOutlet weak var albumButton: UIBarButtonItem!
@@ -28,7 +28,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     let bottomTextFieldDelegate = MemeTextFieldDelegate()
     
     override func viewWillAppear(animated: Bool) {
-        stylizeButtons()
+        prepareButtons()
     }
     
     override func viewDidLoad() {
@@ -39,8 +39,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         
         imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        
-//        enableCameraButton(isCameraAvailable())
         
         topTextFieldDelegate.memeLabel = topLabel
         topTextField.delegate = self.topTextFieldDelegate
@@ -66,16 +64,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         }
     }
     
-    func enableCameraButton(allow: Bool) {
-        if allow {
-            self.cameraButton.enabled = true
-        } else {
-            self.cameraButton.image = nil
-            self.cameraButton.enabled = false
-            self.cameraButton.tintColor = UIColor.lightGrayColor()
-        }
-    }
-    
     func isCameraAvailable() -> Bool {
         return UIImagePickerController.availableCaptureModesForCameraDevice(.Rear) != nil
     }
@@ -96,6 +84,15 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         associatedTextField?.hidden = false
     }
     
+
+    func saveImageWithText() -> UIImage {
+        let newView = UIView()
+        UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, view.opaque, 0)
+        view.drawViewHierarchyInRect(view.bounds, afterScreenUpdates: false)
+        let newImage  = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage
+    }
     
     @IBAction func chooseFromAlbum(sender: UIBarButtonItem) {
         imagePicker.sourceType = .PhotoLibrary
@@ -112,42 +109,59 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     @IBAction func shareImage(sender: UIBarButtonItem) {
-        activityView = UIActivityViewController(activityItems: ["FOOBAR"], applicationActivities: nil)
-        self.presentViewController(activityView, animated: true, completion: nil)
+
+        if (imageView.image == nil) {
+            displayAlert("No image chosen", message: "Please take a photo or choose an image from your library using the buttons below. A blank image cannot be shared as a meme.")
+        } else {
+            let savedImage:UIImage? = saveImageWithText()
+            if (savedImage != nil) {
+                activityView = UIActivityViewController(activityItems: [savedImage!], applicationActivities: nil)
+                self.presentViewController(activityView, animated: true, completion: nil)
+            }
+        }
     }
     
     func noCamera() {
         cameraButton.enabled = false
-        let alertController = UIAlertController(title: "No camera available", message: "The camera could not be accessed. Please pick a photo from the album", preferredStyle: .Alert)
-        let okAction = UIAlertAction(title: "Ok", style: .Default, handler: nil)
-        alertController.addAction(okAction)
-        presentViewController(alertController, animated: true, completion: nil)
+        displayAlert("No camera available", message: "The camera could not be accessed. Please pick a photo from the album")
     }
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
-        stylizeMemeLabels()
+        resetMemeFields()
         imagePicker.dismissViewControllerAnimated(true, completion: nil)
         imageView.contentMode = .ScaleAspectFill
         imageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
     }
     
-    func stylizeMemeLabels() {
-        var memeLabels = [topLabel, bottomLabel]
-        for label in memeLabels {
-            label.hidden = false
-        }
+    func resetMemeFields() {
+        topLabel.text = "TOP TEXT"
+        bottomLabel.text = "BOTTOM TEXT"
+        topTextField.text = ""
+        bottomTextField.text = ""
     }
     
-    
-    func stylizeButtons() {
-        cameraButton.image = UIImage(named: "camera_icon")?.imageWithRenderingMode(.AlwaysOriginal)
+    func prepareButtons() {
+        if isCameraAvailable() {
+            cameraButton.image = UIImage(named: "camera_icon")?.imageWithRenderingMode(.AlwaysOriginal)
+            cameraButton.enabled = true
+        } else {
+            cameraButton.enabled = false
+            cameraButton.image = UIImage(named: "camera_disabled_icon")?.imageWithRenderingMode(.AlwaysOriginal)
+        }
+        
         albumButton.image = UIImage(named: "album_icon")?.imageWithRenderingMode(.AlwaysOriginal)
         shareButton.image = UIImage(named: "social_share")?.imageWithRenderingMode(.AlwaysOriginal)
     }
-
+    
+    func displayAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        let okAction = UIAlertAction(title: "Ok", style: .Default, handler: nil)
+        alertController.addAction(okAction)
+        presentViewController(alertController, animated: true, completion: nil)
+    }
 
 }
 
 
 //TODO: Dry up memelabels hiding
-//TODO: Disable camera button in simulator
+//TODO: Enlarge icons; 1x, 2x ,3x
