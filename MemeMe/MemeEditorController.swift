@@ -26,6 +26,8 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
     let topTextFieldDelegate = MemeTextFieldDelegate()
     let bottomTextFieldDelegate = MemeTextFieldDelegate()
     
+    var sentMemes = [Meme]()
+    
     override func viewWillAppear(animated: Bool) {
         prepareButtons()
     }
@@ -104,9 +106,22 @@ class MemeEditorController: UIViewController, UINavigationControllerDelegate, UI
         } else {
             let capturedImage:UIImage? = captureImageAndText()
             if (capturedImage != nil) {
+                
+                //TODO:Move this out
+                var meme = Meme(image: capturedImage!)
+                self.sentMemes.append(meme)
+                
                 activityView = UIActivityViewController(activityItems: [capturedImage!], applicationActivities: nil)
                 self.presentViewController(activityView, animated: true, completion: nil)
             }
+        }
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if (segue.identifier == "showSentMemes") {
+
+            let controller = segue.destinationViewController as! TabBarController
+            controller.sentMemesGlobal = self.sentMemes
         }
     }
     
